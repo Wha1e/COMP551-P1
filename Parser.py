@@ -31,8 +31,8 @@ def parseFile():
 					marathon_dict[marathon_name] = marathon_dict[marathon_name] + 1
 				else:
 					marathon_dict[marathon_name] = 1
-
-			runner_list.append(Runner(runner_id, event_list)) # Create a new runner object and append to list
+			gender, age = parseCategory(aLine[5])
+			runner_list.append(Runner(runner_id, event_list, gender, age)) # Create a new runner object and append to list
 		
 		""" Some code to help you get a better idea of the dataset, use this when you
 			need some information about the number of marathons that exist
@@ -41,18 +41,28 @@ def parseFile():
 			if marathon_dict[key] < 500 and marathon_dict[key] > 300:
 				print key, ": ", marathon_dict[key]
 		"""
+	return runner_list, marathon_dict
 
-"""
-def parseCategory(cat_str):
-	# gender: 0 = male, 1 = female
-	# age: int that repr the average in the age range
-
+# parses a line of the csv file and creates 
+def parseCategory(category_field):
+	# sets the gender 0 = male, 1 = female
 	gender = 0
-	if ''
-	"""
+	if 'F' in category_field:
+		gender = 1
+
+	age = 30
+	if '-' in category_field:
+		age_ranges = category_field[1:].split('-')
+		if len(age_ranges[1]) == 1:
+			age_ranges = [int(i.strip()) for i in age_ranges]
+			age = sum(age_ranges)/len(age_ranges)
+
+	return gender, age
+
 
 def main():
-	parseFile()
+	runner_list, marathon_dict = parseFile()
+	print runner_list[3].events
 
 if __name__ == '__main__':
 	main()

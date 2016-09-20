@@ -1,6 +1,6 @@
+import numpy as np
 class Runner:
     def __init__(self, id, events, gender, age):
-
         self.id = id
         self.events = sorted(events, key = lambda x: x.date, reverse=True)
         # 0 = male, 1 = female
@@ -21,7 +21,7 @@ class Runner:
 
     def get_event(self, event_name, event_year):
         try:
-            #  and x.date[:4] == event_year
+            # to get "Marathon Oasis de Montreal" in 2014, get_event("Oasis", "2014") would suffice just to prevent long strings
             return filter(lambda x: event_name in x.name and x.date[:4] == event_year, self.events)
         except:
             # no participation == None
@@ -41,3 +41,15 @@ class Runner:
         for e in self.events:
             if e.has_completed():
                 print("Date: {}\n Name: {}\n Type: {}\n Time: {}\n Category: {}\n".format(e.date, e.name, e.type, e.time, e.category))
+
+    def get_feature(self):
+        mtl_2014 = self.get_event("Oasis", "2014")[0]
+        ota_2013 = self.get_event("Ottawa", "2013")[0]
+        bnq_2015 = self.get_event("Banque", "2015")[0]
+        events = [mtl_2014, ota_2013, bnq_2015]
+        mtl = np.array([mtl_2014.get_participation(), mtl_2014.get_successful_finish(), mtl_2014.get_time_in_seconds()])
+        ota = np.array([ota_2013.get_participation(), ota_2013.get_successful_finish(), ota_2013.get_time_in_seconds()])
+        bnq = np.array([bnq_2015.get_participation(), bnq_2015.get_successful_finish(), bnq_2015.get_time_in_seconds()])
+        othr = np.array([self.get_gender(), self.get_age(), self.get_total_races()])
+        feat =  np.concatenate([mtl, ota, bnq, othr])
+        return feat

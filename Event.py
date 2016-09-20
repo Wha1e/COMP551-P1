@@ -1,8 +1,8 @@
 class Event:
-    def __init__(self, date, name, type, time, category):
+    def __init__(self, date, name, etype, time, category):
         self.date = date
         self.name = name
-        self.type = type
+        self.etype = etype
         self.time = time
         self.category = category
 

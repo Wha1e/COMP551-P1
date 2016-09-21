@@ -53,3 +53,10 @@ class Runner:
         othr = np.array([self.get_gender(), self.get_age(), self.get_total_races()])
         feat =  np.concatenate([mtl, ota, bnq, othr])
         return feat
+
+    def get_label(self):
+        e = self.get_event("Oasis", "2015")
+        if e == None or not e.get_participation():
+            return 0
+        else:
+            return 1

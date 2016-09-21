@@ -71,10 +71,19 @@ def create_feature_matrix(runner_list):
 		feat[idx,:] = runner_list[idx].get_feature()
 	return feat
 
+def create_label_matrix(runner_list):
+	dim = (len(runner_list), 1)
+	labels = np.zeros(dim)
+	for idx in range(len(runner_list)):
+		labels[idx] =runner_list[idx].get_label()
+	return labels
+
 def main():
 	runner_list, marathon_dict = parseFile()
 	feat = create_feature_matrix(runner_list)
-	print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
+	labels = create_label_matrix(runner_list)
+	# print feat
+	# print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
 
 if __name__ == '__main__':
 	main()

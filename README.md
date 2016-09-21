@@ -3,7 +3,7 @@ Code for project 1 of COMP 551 applied machine learning at McGill University.
 Members:
 -------
 Tristan Struthers | tristan.struthers@mail.mcgill.ca | 260568567  
-Si Hua Zhang      | si.h.zhang@mail.mcgill.ca        | xxxxxxxxx  
+Si Hua Zhang      | si.h.zhang@mail.mcgill.ca        | 260583688  
 Che-Yuan Liu      | che-yuan.liu@mail.mcgill.ca      | 260523197
 
 Feature Representation:

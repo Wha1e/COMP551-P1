@@ -1,24 +1,25 @@
 import csv
 from Event import Event
 from Runner import Runner
+import numpy as np, re
 
 def parseFile():
 	marathon_dict = {}
 	runner_list = []
 	with open('Project1_data.csv', 'r') as f:
 		reader = csv.reader(f, delimiter=',')
+		next(reader) # skip header row
 		for aLine in reader:
 			number_of_marathons = (len(aLine) - 1) / 5
 			runner_id = aLine[0]
 			event_list = []
 			for i in range(number_of_marathons):
-
 				# Hacky way to access the information in a given line in the csv
-				marathon_date = aLine[((number_of_marathons - 1 )*5) + 1]
-				marathon_name = aLine[((number_of_marathons - 1 )*5) + 2]
-				marathon_etype = aLine[((number_of_marathons - 1 )*5) + 3]
-				marathon_time = aLine[((number_of_marathons - 1 )*5) + 4]
-				marathon_category = aLine[((number_of_marathons - 1 )*5) + 5]
+				marathon_date = aLine[5*i + 1]
+				marathon_name = aLine[5*i + 2]
+				marathon_etype = aLine[5*i + 3]
+				marathon_time = aLine[5*i + 4]
+				marathon_category = aLine[5*i + 5]
 
 				event_list.append(Event(marathon_date, # Create new Event and append to list
 										marathon_name,
@@ -33,7 +34,7 @@ def parseFile():
 					marathon_dict[marathon_name] = 1
 			gender, age = parseCategory(aLine[5])
 			runner_list.append(Runner(runner_id, event_list, gender, age)) # Create a new runner object and append to list
-		
+
 		""" Some code to help you get a better idea of the dataset, use this when you
 			need some information about the number of marathons that exist
 
@@ -43,7 +44,7 @@ def parseFile():
 		"""
 	return runner_list, marathon_dict
 
-# parses a line of the csv file and creates 
+# parses a line of the csv file and creates
 def parseCategory(category_field):
 	# sets the gender 0 = male, 1 = female
 	gender = 0
@@ -52,17 +53,28 @@ def parseCategory(category_field):
 
 	age = 30
 	if '-' in category_field:
+		try:
+			category_field = re.match('[M|F][0-9][0-9]-[0-9][0-9]', category_field).group(0)
+		except:
+			pass
 		age_ranges = category_field[1:].split('-')
-		if len(age_ranges[1]) == 1:
-			age_ranges = [int(i.strip()) for i in age_ranges]
-			age = sum(age_ranges)/len(age_ranges)
-
+		age_ranges = [int(s) for s in age_ranges if s.isdigit()]
+		if len(age_ranges) > 1:
+				age = sum(age_ranges)/len(age_ranges)
 	return gender, age
 
+def create_feature_matrix(runner_list):
+	feat_width = 12 # magic number 12 for handcrafted features, always up for modification
+	dim = (len(runner_list), feat_width)
+	feat = np.zeros(dim)
+	for idx in range(len(runner_list)):
+		feat[idx,:] = runner_list[idx].get_feature()
+	return feat
 
 def main():
 	runner_list, marathon_dict = parseFile()
-	print runner_list[3].events
+	feat = create_feature_matrix(runner_list)
+	print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
 
 if __name__ == '__main__':
 	main()

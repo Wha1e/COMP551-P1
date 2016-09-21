@@ -8,22 +8,35 @@ class Event:
         self.category = category
 
     def get_participation(self):
-        return 1
+        if self == None:
+            return 0
+        else:
+            return 1
 
     def get_successful_finish(self):
-        if self.time == "-1":
+        if self == None or self.time == "-1":
             return 0
         else:
             return 1
 
     def get_time_in_seconds(self):
+        if self == None:
+            return 0
+
         if self.time != "-1":
             h, m, s = self.time.split(':')
             return (int(h) * 3600) + (int(m) * 60) + int(s)
         else:
             return 0
 
+    def print_event(self):
+        splitter =  "----------------------------------------"
+        print(splitter)
+        print("Date: {}\n Name: {}\n Type: {}\n Time: {}\n Category: {}\n".format(self.date, self.name, self.etype, self.time, self.category))
+        print(splitter)
+
 '''
+mock data
 from Runner import Runner
 from Event import Event
 e1 = Event("2014-09-28", "Marathon Oasis de Montreal", "Marathon", "2:03:05", "M40-45")

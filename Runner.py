@@ -66,4 +66,4 @@ class Runner:
         if e == None or not e.get_participation():
             return -1
         else:
-            return e.time
+            return e.get_time_in_seconds()

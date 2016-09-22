@@ -107,9 +107,9 @@ def main():
 
 	feat = create_feature_matrix(active_runner_list)
 	# p_labels = create_participation_label(runner_list)
-	# t_labels = create_time_label(runner_list)
+	t_labels = create_time_label(active_runner_list)
 	np.save("data/active_runner_feat", feat)
-	# np.save("data/labels", labels)
+	np.save("data/active_runner_labels", t_labels)
 	# print feat
 	# print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
 

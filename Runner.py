@@ -22,7 +22,7 @@ class Runner:
     def get_event(self, event_name, event_year):
         try:
             # to get "Marathon Oasis de Montreal" in 2014, get_event("Oasis", "2014") would suffice just to prevent long strings
-            return filter(lambda x: event_name in x.name and x.date[:4] == event_year, self.events)[0]
+            return list(filter(lambda x: event_name in x.name and x.date[:4] == event_year, self.events))[0]
         except:
             # no participation == None
             return None

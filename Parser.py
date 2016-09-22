@@ -6,11 +6,11 @@ import numpy as np, re
 def parseFile():
 	marathon_dict = {}
 	runner_list = []
-	with open('Project1_data.csv', 'r') as f:
+	with open('Project1_data.csv', 'r', encoding='UTF-8') as f:
 		reader = csv.reader(f, delimiter=',')
 		next(reader) # skip header row
 		for aLine in reader:
-			number_of_marathons = (len(aLine) - 1) / 5
+			number_of_marathons = (len(aLine) - 1) // 5
 			runner_id = aLine[0]
 			event_list = []
 			for i in range(number_of_marathons):
@@ -98,7 +98,7 @@ def evaluate_prediction(predictions, truths):
 
 def main():
 	runner_list, marathon_dict = parseFile()
-	print len(runner_list)
+	print(len(runner_list))
 	active_runner_list = [ r for r in runner_list if r.get_event("Oasis", "2015") != None and r.get_event("Oasis", "2015").get_time_in_seconds() != 0]
 	# print len(runner_list)
 

@@ -96,22 +96,53 @@ def evaluate_prediction(predictions, truths):
 			misses = misses + 1
 	return hits, misses
 
+def k_fold_cross_validation(X, Y, validation_fold_number):
+	k = 5
+	n = np.shape(X)[0]
+	fold_size = n/k
+	indices = np.random.permutation(n) # shuffle, in case data is not i.i.d
+	X = np.array(X)
+	folds = [ X[indices[:fold_size]],X[indices[fold_size: fold_size*2]], X[indices[fold_size*2: fold_size*3]], X[indices[fold_size*3: fold_size*4]],X[indices[fold_size*4:]] ]
+	Y_folds = [ Y[indices[:fold_size]],Y[indices[fold_size: fold_size*2]], Y[indices[fold_size*2: fold_size*3]], Y[indices[fold_size*3: fold_size*4]],Y[indices[fold_size*4:]] ]
+	# validation_fold_number = 0
+	validation_fold = []
+	validation_Y = []
+	training_folds = []
+	training_Y = []
+	for v in range(len(folds)):
+		if v == validation_fold_number:
+			validation_fold = np.array(folds[v])
+			validation_Y = np.array(Y_folds[v])
+		else:
+			training_folds.append(folds[v])
+			training_Y = np.array(Y_folds[v])
+	training_folds = np.array(training_folds)
+	# print len(training_folds)
+	return training_folds.flatten(), training_Y.flatten(), validation_fold, validation_Y
+
 def main():
-	runner_list, marathon_dict = parseFile()
-	print(len(runner_list))
-	active_runner_list = [ r for r in runner_list if r.get_event("Oasis", "2015") != None and r.get_event("Oasis", "2015").get_time_in_seconds() != 0]
+	# runner_list, marathon_dict = parseFile()
+	# print(len(runner_list))
+	# active_runner_list = [ r for r in runner_list if r.get_event("Oasis", "2015") != None and r.get_event("Oasis", "2015").get_time_in_seconds() != 0]
 	# print len(runner_list)
 
 	# for r in runner_list:
 	# 	print r.get_event("Oasis", "2015").get_time_in_seconds()
 
-	feat = create_feature_matrix(active_runner_list)
+	# feat = create_feature_matrix(active_runner_list)
 	# p_labels = create_participation_label(runner_list)
-	t_labels = create_time_label(active_runner_list)
-	np.save("data/active_runner_feat", feat)
-	np.save("data/active_runner_labels", t_labels)
+	# t_labels = create_time_label(active_runner_list)
+	# np.save("data/active_runner_feat", feat)
+	# np.save("data/active_runner_labels", t_labels)
 	# print feat
 	# print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
+
+	X = np.random.rand(15,5)
+	X = [10*x for x in X]
+	# X = np.array([0,1,2,3,4],[0,2,2,2,2],[1,2,3,1,2])
+	Y = np.array([0,1,1,0,1,0,1,1,1,0,0,0,0,1,1,0])
+	t_folds, t_Y, v_fold, v_Y = k_fold_cross_validation(X,Y, 0)
+	print np.shape(t_folds), np.shape(t_Y), np.shape(v_fold), np.shape(v_Y)
 
 if __name__ == '__main__':
 	main()

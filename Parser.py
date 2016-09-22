@@ -78,10 +78,23 @@ def create_label_matrix(runner_list):
 		labels[idx] =runner_list[idx].get_label()
 	return labels
 
+def evaluate_prediction(predictions, truths):
+	idx = 0
+	hits = 0
+	misses = 0
+	for idx in range(len(predictions)):
+		if predictions[idx] == truths[idx]:
+			hits = hits + 1
+		else:
+			misses = misses + 1
+	return hits, misses
+
 def main():
 	runner_list, marathon_dict = parseFile()
 	feat = create_feature_matrix(runner_list)
 	labels = create_label_matrix(runner_list)
+	np.save("data/feat", feat)
+	np.save("data/labels", labels)
 	# print feat
 	# print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
 

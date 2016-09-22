@@ -54,9 +54,16 @@ class Runner:
         feat =  np.concatenate([mtl, ota, bnq, othr])
         return feat
 
-    def get_label(self):
+    def get_participation_label(self):
         e = self.get_event("Oasis", "2015")
         if e == None or not e.get_participation():
             return 0
         else:
             return 1
+
+    def get_time_label(self):
+        e = self.get_event("Oasis", "2015")
+        if e == None or not e.get_participation():
+            return -1
+        else:
+            return e.time

@@ -71,11 +71,18 @@ def create_feature_matrix(runner_list):
 		feat[idx,:] = runner_list[idx].get_feature()
 	return feat
 
-def create_label_matrix(runner_list):
+def create_participation_label(runner_list):
 	dim = (len(runner_list), 1)
 	labels = np.zeros(dim)
 	for idx in range(len(runner_list)):
-		labels[idx] =runner_list[idx].get_label()
+		labels[idx] =runner_list[idx].get_participation_label()
+	return labels
+
+def create_time_label(runner_list):
+	dim = (len(runner_list), 1)
+	labels = np.zeros(dim)
+	for idx in range(len(runner_list)):
+		labels[idx] =runner_list[idx].get_time_label()
 	return labels
 
 def evaluate_prediction(predictions, truths):
@@ -91,10 +98,18 @@ def evaluate_prediction(predictions, truths):
 
 def main():
 	runner_list, marathon_dict = parseFile()
-	feat = create_feature_matrix(runner_list)
-	labels = create_label_matrix(runner_list)
-	np.save("data/feat", feat)
-	np.save("data/labels", labels)
+	print len(runner_list)
+	active_runner_list = [ r for r in runner_list if r.get_event("Oasis", "2015") != None and r.get_event("Oasis", "2015").get_time_in_seconds() != 0]
+	# print len(runner_list)
+
+	# for r in runner_list:
+	# 	print r.get_event("Oasis", "2015").get_time_in_seconds()
+
+	feat = create_feature_matrix(active_runner_list)
+	# p_labels = create_participation_label(runner_list)
+	# t_labels = create_time_label(runner_list)
+	np.save("data/active_runner_feat", feat)
+	# np.save("data/labels", labels)
 	# print feat
 	# print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
 

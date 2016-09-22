@@ -1,16 +1,17 @@
-from sklearn import datasets
+from sklearn import linear_model
 import numpy as np
 import math
 
 def logistic_func(weights, training_params):
-  return 1/(1 + math.exp(-(weights.dot(training_params))))
+  exp_term = weights.dot(training_params)
+  return 1/(1 + math.exp(-(exp_term)))
 
 def normalize(X):
+  std_dev = np.std(X, axis=0)
   return (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 
 def grad_desc_logistic(X, Y, learning_rate, error_margin):
   num_features = X.shape[1]
-  X = normalize(X)
   weights = np.zeros(num_features) # initial weights of 0
 
   for i in range(500):
@@ -33,18 +34,15 @@ def grad_desc_logistic(X, Y, learning_rate, error_margin):
   return -1      
 
 def predict(weights, X):
-  X = normalize(X)
-  predictions = [1 if logistic_func(weights, x) >= 0.5 else 0 for x in X]
+  predictions = np.array([1 if logistic_func(weights, x) >= 0.5 else 0 for x in X])
   return predictions
 
 if __name__ == "__main__":
-  data = datasets.load_iris()
-  X = data.data[:100, :2]
-  Y = data.target[:100]
-  Y = np.logical_not(Y)
+  X = np.load("../data/feat.npy")[:4000, [2]]
+  X = normalize(X)
+  Y = np.load("../data/labels.npy")[:4000]
+  weights = grad_desc_logistic(X, Y, 0.001, 0.5)
 
-  predicted_weights = grad_desc_logistic(X, Y, 0.001, 0.003)
-  predictions = predict(predicted_weights, X)
-  correct_predictions = np.sum(predictions == Y)
-
-  print("Correct predictions: " + str(correct_predictions) + "/" + str(Y.size))
+  predictions = predict(weights, X)
+  correct_predictions = np.sum(predictions == Y[:, 0])
+  print(correct_predictions/len(Y))

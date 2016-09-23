@@ -85,64 +85,83 @@ def create_time_label(runner_list):
 		labels[idx] =runner_list[idx].get_time_label()
 	return labels
 
-def evaluate_prediction(predictions, truths):
+def get_error_classification(predictions, truths):
 	idx = 0
-	hits = 0
-	misses = 0
+	true_p, true_n, false_p, false_n = 0
 	for idx in range(len(predictions)):
-		if predictions[idx] == truths[idx]:
-			hits = hits + 1
+		if predictions[idx] == truths[idx] and predictions[idx] == 1:
+			true_p = true_p + 1
+		elif predictions[idx] == truths[idx] and predictions[idx] == 0:
+			true_n = true_n + 1
+		elif predictions[idx] != truths[idx] and predictions[idx] == 1:
+			false_p = false_p + 1
 		else:
-			misses = misses + 1
-	return hits, misses
+			false_n = false_n + 1
+	return true_p, true_n, false_p, false_n
 
-def k_fold_cross_validation(X, Y, validation_fold_number):
-	k = 5
+def get_error_regression(prediction, truths):
+	# TODO: implement least squares error between the times
+
+	pass
+
+def k_fold_cross_validation(X, Y, validation_fold_number, k):
 	n = np.shape(X)[0]
 	fold_size = n/k
+	# indices = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
 	indices = np.random.permutation(n) # shuffle, in case data is not i.i.d
 	X = np.array(X)
 	folds = [ X[indices[:fold_size]],X[indices[fold_size: fold_size*2]], X[indices[fold_size*2: fold_size*3]], X[indices[fold_size*3: fold_size*4]],X[indices[fold_size*4:]] ]
 	Y_folds = [ Y[indices[:fold_size]],Y[indices[fold_size: fold_size*2]], Y[indices[fold_size*2: fold_size*3]], Y[indices[fold_size*3: fold_size*4]],Y[indices[fold_size*4:]] ]
-	# validation_fold_number = 0
-	validation_fold = []
-	validation_Y = []
-	training_folds = []
-	training_Y = []
+	validation_fold, validation_Y, training_folds, training_Y = [], [], [], []
 	for v in range(len(folds)):
 		if v == validation_fold_number:
 			validation_fold = np.array(folds[v])
 			validation_Y = np.array(Y_folds[v])
 		else:
 			training_folds.append(folds[v])
-			training_Y = np.array(Y_folds[v])
+			training_Y.append(Y_folds[v])
 	training_folds = np.array(training_folds)
-	# print len(training_folds)
-	return training_folds.flatten(), training_Y.flatten(), validation_fold, validation_Y
+	training_Y = np.array(training_Y)
+	return training_folds, training_Y, validation_fold, validation_Y
 
 def main():
-	# runner_list, marathon_dict = parseFile()
+	runner_list, marathon_dict = parseFile()
 	# print(len(runner_list))
-	# active_runner_list = [ r for r in runner_list if r.get_event("Oasis", "2015") != None and r.get_event("Oasis", "2015").get_time_in_seconds() != 0]
+	active_runner_list = [ r for r in runner_list if r.get_event("Oasis", "2015") != None and r.get_event("Oasis", "2015").get_time_in_seconds() != 0]
 	# print len(runner_list)
 
-	# for r in runner_list:
-	# 	print r.get_event("Oasis", "2015").get_time_in_seconds()
+	X = create_feature_matrix(active_runner_list)
+	p_labels = create_participation_label(runner_list)
+	t_labels = create_time_label(active_runner_list)
 
-	# feat = create_feature_matrix(active_runner_list)
-	# p_labels = create_participation_label(runner_list)
-	# t_labels = create_time_label(active_runner_list)
-	# np.save("data/active_runner_feat", feat)
-	# np.save("data/active_runner_labels", t_labels)
-	# print feat
-	# print np.shape(feat) # sanity check => should have (8711, 12) as our feature matrix dimension
+	# TODO: Calculate the errors for each model shown below in commented pseudocode
 
-	X = np.random.rand(15,5)
-	X = [10*x for x in X]
-	# X = np.array([0,1,2,3,4],[0,2,2,2,2],[1,2,3,1,2])
-	Y = np.array([0,1,1,0,1,0,1,1,1,0,0,0,0,1,1,0])
-	t_folds, t_Y, v_fold, v_Y = k_fold_cross_validation(X,Y, 0)
-	print np.shape(t_folds), np.shape(t_Y), np.shape(v_fold), np.shape(v_Y)
+	# for a given model (i.g. logistic_regression, linear_regression, naiive_bayes):
+	# for classification:
+	k = 5
+	prediction_error = []
+	Y = p_labels
+	for i in range(k):
+		t_features, t_truths, v_features, v_truths = k_fold_cross_validation(X, Y, i, k)
+		# print v_truths
+		# model = fit_model(t_features, t_truths) # fit model with training data
+		# predictions = predict(v_features) # retrieve predictions on validation data
+		# error = get_error_classification(predictions, v_truths) # compare predictions with truths
+		# prediction_error.append(error)
+	total_prediction_error = np.mean(prediction_error)
+
+	# for regression:
+	k = 5
+	prediction_error = []
+	Y = t_labels
+	for i in range(k):
+		t_features, t_truths, v_features, v_truths = k_fold_cross_validation(X, Y, i, k)
+		# print v_truths
+		# model = fit_model(t_features, t_truths) # fit model with training data
+		# predictions = predict(v_features) # retrieve predictions on validation data
+		# error = get_error_regression(predictions, v_truths) # compare predictions with truths
+		# prediction_error.append(error)
+	total_prediction_error = np.mean(prediction_error)
 
 if __name__ == '__main__':
 	main()

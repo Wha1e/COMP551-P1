@@ -1,29 +1,34 @@
 from sklearn import linear_model
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 class LogisticRegression():
   def __init__(self):
     self.weights = None
     self.predictions = None
+    self.errors = []
 
   def logistic_func(self, weights, training_params):
     exp_term = weights.dot(training_params)
+    # print(exp_term)
     return 1/(1 + math.exp(-(exp_term)))
 
   def error_func(self, weights, X, Y):
-    return -np.sum(Y * math.log(self.logistic_func(weights, X)) + (1 - Y) * math.log(1 - self.logistic_func(weights, X)))
+    # print(X.T.shape)
+    return -np.sum( [Y[i] * math.log(self.logistic_func(weights, x)) + (1 - Y[i]) * math.log(1 - self.logistic_func(weights, x)) for i,x in enumerate(X) ])
 
   @staticmethod
   def normalize(X):
     std_dev = np.std(X, axis=0)
     return (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 
-  def fit(self, X, Y, learning_rate=0.0005, error_margin=0.05):
+  def fit(self, X, Y, learning_rate=0.0005, error_margin=0.001):
     num_features = X.shape[1]
     weights = np.zeros(num_features) # initial weights of 0
 
-    for i in range(10000):
+    errors = []
+    for idx in range(10000):
       vector_sum = np.zeros(num_features)
 
       for i, x in enumerate(X):
@@ -32,15 +37,44 @@ class LogisticRegression():
 
       new_weights = weights - learning_rate * vector_sum
 
+      error = self.error_func(new_weights, X, Y)
+      errors.append(error)
+
       largest_weight_diff = abs(new_weights - weights).max()
       if (largest_weight_diff <= abs(error_margin)): # is this correct?
         self.weights = new_weights
+        # self.generate_graph(errors)
         return
       else:
         weights = new_weights
 
+    # self.generate_graph(self.errors)
     print("diverged...")
-    return -1      
+    return -1
+
+  def generate_graph(self, errors):
+    plt.plot(errors, 'bo')
+    plt.axis([0, 100, 3300, 3600])
+    plt.xlabel('Iterations')
+    plt.ylabel('Value of Cost Function')
+    plt.title('Value of Cost Function vs Number of Iterations of Gradient Descent for Logistic Regression Model')
+    plt.show()
+
+  def get_error_classification(self, predictions, truths):
+      idx = 0
+      true_p, true_n, false_p, false_n = 0, 0, 0, 0
+      for idx in range(len(predictions)):
+          if predictions[idx] == truths[idx] and predictions[idx] == 1:
+              true_p = true_p + 1
+          elif predictions[idx] == truths[idx] and predictions[idx] == 0:
+              true_n = true_n + 1
+          elif predictions[idx] != truths[idx] and predictions[idx] == 1:
+              false_p = false_p + 1
+          else:
+              false_n = false_n + 1
+    #   tbl = plt.table(cellText=["a", "b", "c"],rowLabels=["1", "2", "3"],colLabels=["dog", "cat", "tail"], loc='bottom')
+    #   plt.show()
+      return true_p, true_n, false_p, false_n
 
   def predict(self, X):
     # print(self.weights)

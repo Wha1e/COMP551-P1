@@ -39,6 +39,7 @@ if __name__ == "__main__":
   X, Y = get_participation_data()
   X = LogisticRegression.normalize(X)
   cv.cross_validate(X, Y, LogisticRegression)
+  # LogisticRegression.generate_graph()
   # cv.cross_validate(X, Y, NaiveBayes)
 
   # X = LogisticRegression.normalize(np.load("data/feat.npy"))

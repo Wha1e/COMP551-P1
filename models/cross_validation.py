@@ -19,7 +19,9 @@ def cross_validate(X, Y, model_class, k=5):
     X_validation = validation_data[:, :-1]
     Y_validation = validation_data[:, [-1]]
 
-    model.predict(X_validation)
+    predictions = model.predict(X_validation)
+    true_p, true_n, false_p, false_n = model.get_error_classification(predictions, Y_validation)
+    # print(true_p, true_n, false_p, false_n)
     success_rate = model.get_success_rate(Y_validation)
     success_rates.append(success_rate)
     print("Fold #{}: {}".format(i + 1, success_rate))

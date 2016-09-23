@@ -7,7 +7,6 @@ class LinearRegression():
 
   @staticmethod
   def normalize(X):
-    std_dev = np.std(X, axis=0)
     return (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 
   def fit(self, X, Y, learning_rate=0.00005, error_margin=0.005):

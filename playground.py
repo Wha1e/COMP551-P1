@@ -49,7 +49,9 @@ def get_regression_testing_data():
 
   return X, Y
 
-if __name__ == "__main__":
+def generate_predictions():
+  print("generating predictions...")
+
   X, Y = get_classification_training_data()
   test_X = get_classification_testing_data()
 
@@ -66,3 +68,8 @@ if __name__ == "__main__":
       csv_out = csv.writer(outfile)
       for row in all_predictions:
           csv_out.writerow(row)
+
+  print("predictions generated in data/predictions.csv")
+
+if __name__ == "__main__":
+  generate_predictions()

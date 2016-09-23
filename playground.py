@@ -1,11 +1,12 @@
 import Parser
-import numpy as np
+import numpy as np, csv
 from models.logistic_regression import LogisticRegression
 from models.linear_regression import LinearRegression
 from models.naive_bayes_cont import NaiveBayes
 import models.cross_validation as cv
 
-def get_participation_data():
+
+def get_classification_training_data():
   all_runners, _ = Parser.parseFile()
 
   X = np.array([
@@ -19,7 +20,21 @@ def get_participation_data():
   Y = np.array([r.get_participation_label() for r in all_runners])
   return X, Y
 
-def get_finishing_time_data():
+def get_classification_testing_data():
+    # Includes 2015 Montreal Oasis data
+    all_runners, _ = Parser.parseFile()
+
+    X = np.array([
+      [
+        r.get_total_full_races(),
+        len([e for e in r.events if "Oasis" in e.name and e.etype == "Marathon"]),
+        len([e for e in r.events if "2016" in e.date]),
+      ]
+      for r in all_runners
+    ])
+    return X
+
+def get_regression_testing_data():
   all_runners, _ = Parser.parseFile()
 
   runners_with_finishing_time = [r for r in all_runners if r.get_time_label() != -1]
@@ -34,27 +49,20 @@ def get_finishing_time_data():
 
   return X, Y
 
-
 if __name__ == "__main__":
-  X, Y = get_participation_data()
-  X = LogisticRegression.normalize(X)
-  cv.cross_validate(X, Y, LogisticRegression)
-  # LogisticRegression.generate_graph()
-  # cv.cross_validate(X, Y, NaiveBayes)
+  X, Y = get_classification_training_data()
+  test_X = get_classification_testing_data()
 
-  # X = LogisticRegression.normalize(np.load("data/feat.npy"))
-  # Y = np.load("data/labels.npy")
-  # cv.cross_validate(X, Y, NaiveBayes)
+  models = [LogisticRegression(), NaiveBayes()]
+  predictions = []
+  for model in models:
+      model.fit(X, Y)
+      predictions.append(model.predict(test_X))
 
-  # X, Y = get_finishing_time_data()
-  # print(X)
-  # print(Y)
+  runner_ids = np.arange(len(Y))
+  all_predictions = zip(runner_ids, predictions[0], predictions[1])
 
-  # all_runners, _ = Parser.parseFile()
-  # for r in all_runners:
-    # r.get_all_events()
-
-
-  # X_lin = LinearRegression.normalize(np.load("../data/active_runner_feat.npy"))
-  # Y_lin = np.load("../data/active_runner_labels.npy")
-  # cross_validate(X_lin, Y_lin, LinearRegression)
+  with open("data/predictions.csv", "w") as outfile:
+      csv_out = csv.writer(outfile)
+      for row in all_predictions:
+          csv_out.writerow(row)

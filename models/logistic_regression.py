@@ -11,11 +11,9 @@ class LogisticRegression():
 
   def logistic_func(self, weights, training_params):
     exp_term = weights.dot(training_params)
-    # print(exp_term)
     return 1/(1 + math.exp(-(exp_term)))
 
   def error_func(self, weights, X, Y):
-    # print(X.T.shape)
     return -np.sum( [Y[i] * math.log(self.logistic_func(weights, x)) + (1 - Y[i]) * math.log(1 - self.logistic_func(weights, x)) for i,x in enumerate(X) ])
 
   @staticmethod
@@ -41,7 +39,7 @@ class LogisticRegression():
       errors.append(error)
 
       largest_weight_diff = abs(new_weights - weights).max()
-      if (largest_weight_diff <= abs(error_margin)): # is this correct?
+      if (largest_weight_diff <= abs(error_margin)):
         self.weights = new_weights
         # self.generate_graph(errors)
         return
@@ -72,12 +70,9 @@ class LogisticRegression():
               false_p = false_p + 1
           else:
               false_n = false_n + 1
-    #   tbl = plt.table(cellText=["a", "b", "c"],rowLabels=["1", "2", "3"],colLabels=["dog", "cat", "tail"], loc='bottom')
-    #   plt.show()
       return true_p, true_n, false_p, false_n
 
   def predict(self, X):
-    # print(self.weights)
     self.predictions = np.array([1 if self.logistic_func(self.weights, x) >= 0.5 else 0 for x in X])
     return self.predictions
 

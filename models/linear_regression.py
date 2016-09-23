@@ -2,6 +2,7 @@ import numpy as np
 
 class LinearRegression():
   def __init__(self):
+    self.predictions = None
     self.weights = None
 
   @staticmethod
@@ -23,7 +24,6 @@ class LinearRegression():
 
       largest_weight_diff = abs(new_weights - weights).max()
       if (largest_weight_diff <= abs(error_margin)):
-        print("converged in " + str(i) + " iterations")
         self.weights = new_weights
         return
       else:
@@ -34,7 +34,12 @@ class LinearRegression():
 
   def predict(self, X):
     X = np.column_stack((X, np.ones(len(X))))
-    return np.array([x.dot(self.weights).item() for x in X])
+    self.predictions = np.array([x.dot(self.weights).item() for x in X])
+    return self.predictions
+
+  def get_success_rate(self, Y):
+    diff = np.absolute(self.predictions - Y)
+    return np.mean(diff)
 
 if __name__ == "__main__":
   lr = LinearRegression()
@@ -43,8 +48,7 @@ if __name__ == "__main__":
   Y = np.load("../data/active_runner_labels.npy")
 
   lr.fit(X, Y)
-  predictions = lr.predict(X[:100])
+  predictions = lr.predict(X)
 
-  diff = np.absolute(predictions - Y[:100])
-  mean = np.mean(diff)
-  print(mean)
+  sr = lr.get_success_rate(Y)
+  print(sr)

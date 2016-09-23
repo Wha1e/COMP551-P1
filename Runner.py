@@ -19,6 +19,9 @@ class Runner:
     def get_total_races(self):
         return len(self.events)
 
+    def get_total_full_races(self):
+        return len([e for e in self.events if e.etype == "Marathon"])
+
     def get_event(self, event_name, event_year):
         try:
             # to get "Marathon Oasis de Montreal" in 2014, get_event("Oasis", "2014") would suffice just to prevent long strings
@@ -54,16 +57,21 @@ class Runner:
         feat =  np.concatenate([mtl, ota, bnq, othr])
         return feat
 
+    def get_avg_oasis_time(self):
+        oasis_events = [e for e in self.events if "Oasis" in e.name and "Marathon" in e.etype and "2015" not in e.date]
+        finish_times = [e.get_time_in_seconds() for e in oasis_events if e.get_time_in_seconds() != 0]
+        return np.mean(finish_times)
+
     def get_participation_label(self):
         e = self.get_event("Oasis", "2015")
-        if e == None or not e.get_participation():
+        if e == None or not e.get_participation() or e.etype != "Marathon":
             return 0
         else:
             return 1
 
     def get_time_label(self):
         e = self.get_event("Oasis", "2015")
-        if e == None or not e.get_participation():
+        if e == None or not e.get_participation() or e.etype != "Marathon" or e.get_time_in_seconds() == 0:
             return -1
         else:
             return e.get_time_in_seconds()

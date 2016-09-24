@@ -25,9 +25,9 @@ def get_classification_training_data():
   ])
   Y = np.array([[r.get_participation_label()] for r in all_runners])
 
-  feature_file = "data/training_features.csv"
-  labels_file = "data/training_labels.csv"
-  print("saving training features and labels in", feature_file, "and", labels_file)
+  feature_file = "data/classification_training_features.csv"
+  labels_file = "data/classification_training_labels.csv"
+  print("saving classification training features and labels in", feature_file, "and", labels_file)
   save_to_csv(X, feature_file)
   save_to_csv(Y, labels_file)
 
@@ -46,8 +46,8 @@ def get_classification_testing_data():
       for r in all_runners
     ])
 
-    feature_file = "data/testing_features.csv"
-    print("saving features in", feature_file)
+    feature_file = "data/classification_testing_features.csv"
+    print("saving classification test features in", feature_file)
     save_to_csv(X, feature_file)
 
     return X
@@ -65,7 +65,13 @@ def get_regression_training_data():
     ]
     for r in runners_with_finishing_time
   ])
-  Y = np.array([r.get_time_label() for r in runners_with_finishing_time])
+  Y = np.array([[r.get_time_label()] for r in runners_with_finishing_time])
+
+  feature_file = "data/regression_training_features.csv"
+  labels_file = "data/regression_training_labels.csv"
+  print("saving regression training features and labels in", feature_file, "and", labels_file)
+  save_to_csv(X, feature_file)
+  save_to_csv(Y, labels_file)
 
   return X, Y
 
@@ -81,6 +87,10 @@ def get_regression_testing_data():
     for r in all_runners
   ])
 
+  feature_file = "data/regression_testing_features.csv"
+  print("saving regression test features in", feature_file)
+  save_to_csv(X, feature_file)
+
   return X
 
 def generate_classification_predictions():
@@ -90,8 +100,8 @@ def generate_classification_predictions():
   class_models = [LogisticRegression(), NaiveBayes()]
   predictions = []
   for model in class_models:
-      model.fit(X, Y)
-      predictions.append(model.predict(test_X))
+    model.fit(X, Y)
+    predictions.append(model.predict(test_X))
   
   return predictions
 
@@ -119,9 +129,9 @@ def generate_predictions():
   runner_ids = np.arange(len(lin_reg_predictions))
   all_predictions = zip(runner_ids, class_predictions[0], class_predictions[1], lin_reg_predictions)
 
-  save_to_csv(all_predictions, "data/predictions.csv")
+  save_to_csv(all_predictions, "predictions/predictions.csv")
 
-  print("predictions generated in data/predictions.csv")
+  print("predictions generated in predictions/predictions.csv")
 
 if __name__ == "__main__":
   generate_predictions()

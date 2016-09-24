@@ -4,7 +4,7 @@ from models.logistic_regression import LogisticRegression
 from models.linear_regression import LinearRegression
 from models.naive_bayes_cont import NaiveBayes
 import models.cross_validation as cv
-
+import datetime
 
 def save_to_csv(data, filename):
   with open(filename, "w") as outfile:
@@ -52,14 +52,16 @@ def get_classification_testing_data():
 
     return X
 
-def get_regression_testing_data():
+def get_regression_training_data():
   all_runners, _ = Parser.parseFile()
 
-  runners_with_finishing_time = [r for r in all_runners if r.get_time_label() != -1]
+  runners_with_finishing_time = [r for r in all_runners if r.get_time_label() != -1 and r.get_avg_full_marathon_without_label() != -1]
 
   X = np.array([
     [
-      r.get_avg_oasis_time()
+      r.get_total_full_races() - r.get_participation_label(),
+      r.age,
+      r.get_avg_full_marathon_without_label()
     ]
     for r in runners_with_finishing_time
   ])
@@ -67,20 +69,55 @@ def get_regression_testing_data():
 
   return X, Y
 
-def generate_predictions():
-  print("generating predictions...")
+def get_regression_testing_data():
+  all_runners, _ = Parser.parseFile()
 
+  X = np.array([
+    [
+      r.get_total_full_races(),
+      r.age,
+      r.get_avg_full_marathon_time()
+    ]
+    for r in all_runners
+  ])
+
+  return X
+
+def generate_classification_predictions():
   X, Y = get_classification_training_data()
   test_X = get_classification_testing_data()
 
-  models = [LogisticRegression(), NaiveBayes()]
+  class_models = [LogisticRegression(), NaiveBayes()]
   predictions = []
-  for model in models:
+  for model in class_models:
       model.fit(X, Y)
       predictions.append(model.predict(test_X))
+  
+  return predictions
 
-  runner_ids = np.arange(len(Y))
-  all_predictions = zip(runner_ids, predictions[0], predictions[1])
+def generate_regression_predictions():
+  X, Y = get_regression_training_data()
+  test_X = get_regression_testing_data()
+
+  lr = LinearRegression()
+  lr.fit(X, Y)
+  predictions = [str(datetime.timedelta(seconds=int(s))) for s in lr.predict(test_X)]
+
+  for i, x in enumerate(test_X):
+    # set those who don't have a full marathon to -1
+    if x[2] == -1:
+      predictions[i] = -1
+
+  return predictions
+
+def generate_predictions():
+  print("generating predictions...")
+
+  class_predictions = generate_classification_predictions()
+  lin_reg_predictions = generate_regression_predictions()
+
+  runner_ids = np.arange(len(lin_reg_predictions))
+  all_predictions = zip(runner_ids, class_predictions[0], class_predictions[1], lin_reg_predictions)
 
   save_to_csv(all_predictions, "data/predictions.csv")
 

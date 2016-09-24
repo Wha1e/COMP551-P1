@@ -57,10 +57,26 @@ class Runner:
         feat =  np.concatenate([mtl, ota, bnq, othr])
         return feat
 
+    def get_avg_full_marathon_without_label(self):
+        full_marathon_times = [e.get_time_in_seconds() for e in self.events if e.is_full_marathon() and e.get_time_in_seconds() != 0 and not e.is_label_marathon()]
+
+        if not len(full_marathon_times):
+            return -1
+        return np.mean(full_marathon_times)
+
+    def get_avg_full_marathon_time(self):
+        full_marathon_times = [e.get_time_in_seconds() for e in self.events if e.is_full_marathon() and e.get_time_in_seconds() != 0]
+
+        if not len(full_marathon_times):
+            return -1
+        return np.mean(full_marathon_times)
+
+
     def get_avg_oasis_time(self):
-        oasis_events = [e for e in self.events if "Oasis" in e.name and "Marathon" in e.etype and "2015" not in e.date]
-        finish_times = [e.get_time_in_seconds() for e in oasis_events if e.get_time_in_seconds() != 0]
-        return np.mean(finish_times)
+        times = [e.get_time_in_seconds() for e in self.events if e.is_full_marathon() and "Oasis" in e.name and not e.is_label_marathon() and e.get_time_in_seconds() != 0]
+        if not len(times):
+            return -1
+        return np.mean(times)
 
     def get_participation_label(self):
         e = self.get_event("Oasis", "2015")

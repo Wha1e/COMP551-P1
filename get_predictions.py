@@ -6,6 +6,12 @@ from models.naive_bayes_cont import NaiveBayes
 import models.cross_validation as cv
 
 
+def save_to_csv(data, filename):
+  with open(filename, "w") as outfile:
+      csv_out = csv.writer(outfile)
+      for row in data:
+          csv_out.writerow(row)
+
 def get_classification_training_data():
   all_runners, _ = Parser.parseFile()
 
@@ -17,7 +23,14 @@ def get_classification_training_data():
     ]
     for r in all_runners
   ])
-  Y = np.array([r.get_participation_label() for r in all_runners])
+  Y = np.array([[r.get_participation_label()] for r in all_runners])
+
+  feature_file = "data/training_features.csv"
+  labels_file = "data/training_labels.csv"
+  print("saving training features and labels in", feature_file, "and", labels_file)
+  save_to_csv(X, feature_file)
+  save_to_csv(Y, labels_file)
+
   return X, Y
 
 def get_classification_testing_data():
@@ -32,6 +45,11 @@ def get_classification_testing_data():
       ]
       for r in all_runners
     ])
+
+    feature_file = "data/testing_features.csv"
+    print("saving features in", feature_file)
+    save_to_csv(X, feature_file)
+
     return X
 
 def get_regression_testing_data():
@@ -64,10 +82,7 @@ def generate_predictions():
   runner_ids = np.arange(len(Y))
   all_predictions = zip(runner_ids, predictions[0], predictions[1])
 
-  with open("data/predictions.csv", "w") as outfile:
-      csv_out = csv.writer(outfile)
-      for row in all_predictions:
-          csv_out.writerow(row)
+  save_to_csv(all_predictions, "data/predictions.csv")
 
   print("predictions generated in data/predictions.csv")
 

@@ -29,11 +29,28 @@ class Event:
         else:
             return 0
 
+    def is_full_marathon(self):
+        full_marathon_labels = [
+            "Marathon", 
+            "Full Marathon", 
+            "42.2km", 
+            "Ottawa Marathon", 
+            "Saskatchewan Credit Unions 42.2K Run", 
+            "Scotiabank Full Marathon", 
+            "Scotiabank Ottawa Marathon"
+        ]
+
+        return self.etype in full_marathon_labels
+
     def print_event(self):
         splitter =  "----------------------------------------"
         print(splitter)
         print("Date: {}\n Name: {}\n Type: {}\n Time: {}\n Category: {}\n".format(self.date, self.name, self.etype, self.time, self.category))
         print(splitter)
+
+    def is_label_marathon(self):
+        return "Oasis" in self.name and "2015" in self.date
+
 
 '''
 mock data

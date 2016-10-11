@@ -19,10 +19,13 @@ class Runner:
     def get_total_races(self):
         return len(self.events)
 
+    def get_total_full_races(self):
+        return len([e for e in self.events if e.etype == "Marathon"])
+
     def get_event(self, event_name, event_year):
         try:
             # to get "Marathon Oasis de Montreal" in 2014, get_event("Oasis", "2014") would suffice just to prevent long strings
-            return filter(lambda x: event_name in x.name and x.date[:4] == event_year, self.events)[0]
+            return list(filter(lambda x: event_name in x.name and x.date[:4] == event_year, self.events))[0]
         except:
             # no participation == None
             return None
@@ -54,9 +57,37 @@ class Runner:
         feat =  np.concatenate([mtl, ota, bnq, othr])
         return feat
 
-    def get_label(self):
+    def get_avg_full_marathon_without_label(self):
+        full_marathon_times = [e.get_time_in_seconds() for e in self.events if e.is_full_marathon() and e.get_time_in_seconds() != 0 and not e.is_label_marathon()]
+
+        if not len(full_marathon_times):
+            return -1
+        return np.mean(full_marathon_times)
+
+    def get_avg_full_marathon_time(self):
+        full_marathon_times = [e.get_time_in_seconds() for e in self.events if e.is_full_marathon() and e.get_time_in_seconds() != 0]
+
+        if not len(full_marathon_times):
+            return -1
+        return np.mean(full_marathon_times)
+
+
+    def get_avg_oasis_time(self):
+        times = [e.get_time_in_seconds() for e in self.events if e.is_full_marathon() and "Oasis" in e.name and not e.is_label_marathon() and e.get_time_in_seconds() != 0]
+        if not len(times):
+            return -1
+        return np.mean(times)
+
+    def get_participation_label(self):
         e = self.get_event("Oasis", "2015")
-        if e == None or not e.get_participation():
+        if e == None or not e.get_participation() or e.etype != "Marathon":
             return 0
         else:
             return 1
+
+    def get_time_label(self):
+        e = self.get_event("Oasis", "2015")
+        if e == None or not e.get_participation() or e.etype != "Marathon" or e.get_time_in_seconds() == 0:
+            return -1
+        else:
+            return e.get_time_in_seconds()
